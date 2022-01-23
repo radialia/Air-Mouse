@@ -3,16 +3,19 @@ from imutils.video import WebcamVideoStream
 import imutils
 import cv2
 import time
-import numpy as np
 import HandDetector
 import pyautogui
-import math
-from pynput.mouse import Button, Controller
+from pynput.mouse import Controller
+
+
+from MouseMove import MouseMove
+from MouseClick import MouseClick
+from MouseDragDrop import MouseDragDrop
 
 # Get the controller object
 mouse = Controller()
 # Initialise the camera object
-vs = WebcamVideoStream(src=0).start()
+vs = WebcamVideoStream(src=1).start()
 
 # Initialise hand detection
 detector = HandDetector.Detector().start()
@@ -58,61 +61,23 @@ while True:
     cv2.rectangle(frame, (100, 30), (width-100, height-200), (0, 255, 0), 2)
 
     if(len(landmarkList) != 0):
-        # Gets landmarks of index and middle finger
-        thumb_x, thumb_y = landmarkList[4][1], landmarkList[4][2]
-        index_x, index_y = landmarkList[8][1], landmarkList[8][2]
-        middle_x, middle_y = landmarkList[12][1], landmarkList[12][2]
-
-        # Convert the finger coordinates into screen coordinates
-        mouseX = np.interp(index_x, [100, width-100], [0, screen[0]])
-        mouseY = np.interp(index_y, [30, height-200], [0, screen[1]])
         # Make the cursor go to the extreme corner
         pyautogui.FAILSAFE = False
 
         # If the index finger is only raised up
-        if(fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0):
-            # Making mouse smooth
-            currentLocation[0] = previousLocation[0] + \
-                (mouseX - previousLocation[0])/smooth
-
-            currentLocation[1] = previousLocation[1] + \
-                (mouseY - previousLocation[1])/smooth
-
-            # Mouse cursor
-            cv2.circle(frame, (index_x, index_y), 15, (0, 0, 255), cv2.FILLED)
-            # Move mouse
-            mouse.position = (currentLocation[0], currentLocation[1])
-            # Swap values
-            previousLocation[0], previousLocation[1] = currentLocation[0], currentLocation[1]
+        if(fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 0):
+            MouseMove(frame, landmarkList, screen, mouse)
 
         # If the index and middle finger is both up
-        if(fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0):
-            # Make indicator at index finger, middle finger and a line between them
-            cv2.circle(frame, (index_x, index_y), 15, (255, 0, 0), cv2.FILLED)
-            cv2.circle(frame, (middle_x, middle_y),
-                       15, (255, 0, 0), cv2.FILLED)
-            cv2.line(frame, (index_x, index_y),
-                     (middle_x, middle_y), (255, 255, 0), 2)
+        if(fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1):
+            MouseClick(frame, landmarkList, mouse)
 
-            # Calculate center
-            center_x, center_y = (index_x+middle_x)//2, (index_y+middle_y)//2
-
-            # Get distance
-            distance = math.sqrt(
-                math.pow((index_x-middle_x), 2) + math.pow((index_y-middle_y), 2))
-
-            # Detect distance
-            if(distance < 50):
-                cv2.circle(frame, (center_x, center_y),
-                           15, (0, 255, 0), cv2.FILLED)
-                mouse.click(Button.left)
-            if(distance > 50):
-                cv2.circle(frame, (center_x, center_y),
-                           15, (0, 0, 255), cv2.FILLED)
+        # If the thumb and index finger is both up
+        if(fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0):
+            MouseDragDrop(frame, landmarkList, mouse)
 
     # Show the frame in a window
-    cv2.imshow("AI Mouse", frame)
-    # Updates the frame simulataneously
+    cv2.imshow("Air Mouse", frame)
 
     # If the 'q' key is pressed then exit the window
     if(cv2.waitKey(5) & 0xFF == ord('q')):
