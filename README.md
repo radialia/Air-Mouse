@@ -32,7 +32,7 @@ _Install dependencies_
 _Run the app_
 
 ```bash
-  python main.py
+  python src/main.py
 ```
 
 
@@ -50,7 +50,7 @@ _I learned about computer vision. I also came to know how to integrate different
 
 ## _License_
 
-_This project is [MIT](https://github.com/radialia/Workspace-Automation/blob/main/LICENSE) licensed._
+_This project is [MIT](https://github.com/radialia/Air-Mouse/blob/master/LICENSE) licensed._
 
 
 ## _Support_
