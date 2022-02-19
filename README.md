@@ -26,7 +26,7 @@ _Go to the project directory_
 _Install dependencies_
 
 ```bash
-  pip install requirements.txt
+  pip install -r .\requirememts.txt
 ```
 
 _Run the app_
